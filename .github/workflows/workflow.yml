@@ -31,13 +31,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ needs.sync-dependent-files.outputs.commit_hash || github.head_ref }}
+
       - name: Install bazelisk
         run: ./tools/ci/install_bazelisk.sh v1.15.0 ${{ matrix.platform }}
+
       - name: Test
+        id: test
         run: ./bin/bazel test //...
       
       # Required for https://github.com/stefanzweifel/git-auto-commit-action/issues/231
       - name: Update job status
+        if: ${{ always() }}
         run: |
           curl --request POST \
             --url https://api.github.com/repos/${{ github.repository }}/statuses/`git rev-parse HEAD` \
@@ -45,6 +49,6 @@ jobs:
             --header 'content-type: application/json' \
             --data '{
               "context": "CI / check - (${{ matrix.platform }}) (pull_request)",
-              "state": "success",
+              "state": "${{ steps.test.result }}",
               "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }'
