@@ -35,3 +35,16 @@ jobs:
         run: ./tools/ci/install_bazelisk.sh v1.15.0 ${{ matrix.platform }}
       - name: Test
         run: ./bin/bazel test //...
+      
+      # Required for https://github.com/stefanzweifel/git-auto-commit-action/issues/231
+      - name: Update job status
+        run: |
+          curl --request POST \
+            --url https://api.github.com/repos/${{ github.repository }}/statuses/`git rev-parse HEAD` \
+            --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+            --header 'content-type: application/json' \
+            --data '{
+              "context": "CI / check - (${{ matrix.platform }}) (pull_request)",
+              "state": "success",
+              "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }'
