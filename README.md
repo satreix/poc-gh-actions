@@ -22,6 +22,10 @@ We want to update the CI setup of [everest][] to accommodate for CI authored com
 
 In this scenario, unless there are breaking changes in the updated dependencies, no human intervention is required.
 
+## What does done mean
+
+If a PR bumping the integer in //:deps.txt triggers a commit from CI into the PR that bump the int in //:third_party/deps-derived.txt and keep the tests passing, we are done.
+
 ## Notes
 
 ### Commit back
@@ -40,16 +44,17 @@ Committing back to the PR in CI means we need to **do this before** the steps th
 In summary, we probably want 2 potentials commits by the CI, and then the matrix:
 
 ```mermaid
-graph LR;
-  update_derived(Update derived files);
-  lint_files(Lint files);
-  steps_linux(Linux steps);
-  steps_mac(macOS steps);
-  c1(Commit);
-  c2(Commit);
-  Trigger --> update_derived --> c1 --> lint_files --> c2;
-  c2 --> steps_linux;
-  c2 --> steps_mac;
+graph LR
+  trigger[Trigger]
+  update_derived[Update derived files]
+  lint_files[Lint files]
+  steps_linux[Linux steps]
+  steps_mac[macOS steps]
+  c1[/Commit/]
+  c2[/Commit/]
+  trigger --> update_derived --> c1 --> lint_files --> c2
+  c2 --> steps_linux
+  c2 --> steps_mac
 ```
 
 [everest]: https://github.com/satreix/everest

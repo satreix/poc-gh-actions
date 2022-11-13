@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    strategy:
+      matrix:
+        platform:
+          - macos-latest
+          - ubuntu-latest
+    name: check - (${{ matrix.platform }})
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install bazelisk
+        run: ./tools/ci/install_bazelisk.sh v1.15.0 ${{ matrix.platform }}
+
+      - name: Test
+        run: ./bin/bazel test //...

@@ -1,0 +1,7 @@
+# Avoid blowing up the RAM usage.
+startup --host_jvm_args=-Xmx2500m
+startup --host_jvm_args=-Xms2500m
+
+# Understand failures better
+build --verbose_failures
+test --verbose_failures

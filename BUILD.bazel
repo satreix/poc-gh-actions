@@ -1,0 +1,4 @@
+exports_files([
+    "deps.txt",
+    "third_party/deps-derived.txt",
+])
