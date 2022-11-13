@@ -6,15 +6,16 @@ on:
 jobs:
   sync-dependent-files:
     runs-on: ubuntu-latest
+    outputs:
+      commit_hash: ${{ steps.auto-commit-action.outputs.commit_hash }}
     steps:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-      - id: sync
-        name: Sync dependent files
+      - name: Sync dependent files
         run: ./tools/sync-dependencies.sh
       - name: Commit changes
-        if: steps.sync.outputs.changes_detected == 'true'
+        id: auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v4.15.4
 
   check:
@@ -29,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ needs.sync-dependent-files.outputs.commit_hash || github.head_ref }}
       - name: Install bazelisk
         run: ./tools/ci/install_bazelisk.sh v1.15.0 ${{ matrix.platform }}
       - name: Test
